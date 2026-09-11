@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Little List</title>
+	<style>
+		:root {
+			--ink: #18241f;
+			--muted: #66736d;
+			--paper: #fffdf8;
+			--mint: #d9f2e5;
+			--green: #237a57;
+			--green-dark: #15553d;
+			--line: #dce5df;
+			--coral: #e7795d;
+			font-family: Georgia, "Times New Roman", serif;
+		}
+
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			min-height: 100vh;
+			color: var(--ink);
+			background: #f5eadb;
+			background-image: radial-gradient(#e8d8c5 1px, transparent 1px);
+			background-size: 18px 18px;
+		}
+
+		.shell {
+			width: min(1080px, calc(100% - 32px));
+			margin: 0 auto;
+			padding: 56px 0 72px;
+		}
+
+		header {
+			display: flex;
+			justify-content: space-between;
+			gap: 24px;
+			align-items: end;
+			margin-bottom: 32px;
+		}
+
+		.eyebrow {
+			margin: 0 0 10px;
+			color: var(--coral);
+			font: 700 0.75rem/1.2 Arial, sans-serif;
+			letter-spacing: 0.14em;
+			text-transform: uppercase;
+		}
+
+		h1 {
+			max-width: 620px;
+			margin: 0;
+			font-size: clamp(2.6rem, 7vw, 5.7rem);
+			line-height: 0.91;
+			letter-spacing: -0.04em;
+			font-weight: 700;
+		}
+
+		.intro {
+			max-width: 250px;
+			margin: 0 0 4px;
+			color: var(--muted);
+			font: 0.95rem/1.5 Arial, sans-serif;
+		}
+
+		.workspace {
+			display: grid;
+			grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
+			gap: 20px;
+			align-items: start;
+		}
+
+		.panel {
+			padding: clamp(22px, 4vw, 36px);
+			border: 1px solid rgba(24, 36, 31, 0.08);
+			border-radius: 8px;
+			background: var(--paper);
+			box-shadow: 10px 12px 0 rgba(35, 122, 87, 0.11);
+		}
+
+		.form-panel { background: var(--mint); }
+		h2 {
+			margin: 0 0 6px;
+			font-size: 1.65rem;
+		}
+		.panel-note {
+			margin: 0 0 26px;
+			color: var(--muted);
+			font: 0.85rem/1.45 Arial, sans-serif;
+		}
+
+		label {
+			display: block;
+			margin: 0 0 7px;
+			font: 700 0.78rem/1 Arial, sans-serif;
+			letter-spacing: 0.05em;
+			text-transform: uppercase;
+		}
+		.field { margin-bottom: 18px; }
+		input, select {
+			width: 100%;
+			min-height: 44px;
+			padding: 10px 12px;
+			border: 1px solid var(--line);
+			border-radius: 4px;
+			color: var(--ink);
+			background: #fff;
+			font: 1rem Arial, sans-serif;
+		}
+		input:focus, select:focus { outline: 3px solid rgba(35, 122, 87, 0.22); border-color: var(--green); }
+
+		button {
+			min-height: 44px;
+			border: 0;
+			border-radius: 4px;
+			padding: 10px 17px;
+			cursor: pointer;
+			font: 700 0.8rem Arial, sans-serif;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+			transition: transform 160ms ease, background 160ms ease;
+		}
+		button:hover { transform: translateY(-2px); }
+		.primary { width: 100%; color: #fff; background: var(--green-dark); }
+		.primary:hover { background: var(--green); }
+		.secondary { color: var(--green-dark); background: transparent; border: 1px solid var(--line); }
+		.secondary:hover { background: #f3f8f5; }
+
+		.list-heading {
+			display: flex;
+			justify-content: space-between;
+			gap: 14px;
+			align-items: center;
+			margin-bottom: 22px;
+		}
+		.list-heading h2 { margin: 0; }
+		#count { color: var(--coral); font: 700 0.8rem Arial, sans-serif; }
+		#empty-state { margin: 42px 0; color: var(--muted); text-align: center; font: 0.95rem/1.5 Arial, sans-serif; }
+		#items { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+		.item {
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 14px;
+			align-items: center;
+			padding: 15px 16px;
+			border-left: 4px solid var(--green);
+			background: #f6faf7;
+			animation: arrive 280ms ease both;
+		}
+		.item h3 { margin: 0 0 5px; font-size: 1.1rem; overflow-wrap: anywhere; }
+		.meta { margin: 0; color: var(--muted); font: 0.78rem Arial, sans-serif; }
+		.priority-high { border-left-color: var(--coral); }
+		.priority-low { border-left-color: #d4ad3e; }
+		.delete { min-height: 34px; padding: 7px 9px; color: #9b4936; background: transparent; font-size: 0.7rem; }
+		.delete:hover { background: #fdebe5; }
+
+		@keyframes arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+		@media (max-width: 720px) {
+			.shell { padding-top: 34px; }
+			header { display: block; }
+			.intro { margin-top: 18px; max-width: 360px; }
+			.workspace { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<main class="shell">
+		<header>
+			<div>
+				<p class="eyebrow">A tiny place for big ideas</p>
+				<h1>Put it down.<br>Make it real.</h1>
+			</div>
+			<p class="intro">Capture a thought, task, or anything you want to remember.</p>
+		</header>
+
+		<section class="workspace" aria-label="Input and saved items">
+			<form class="panel form-panel" id="item-form">
+				<h2>Add something</h2>
+				<p class="panel-note">Give your next thought a name and a little context.</p>
+				<div class="field">
+					<label for="title">What is it?</label>
+					<input id="title" name="title" type="text" placeholder="e.g. Plan weekend hike" required maxlength="80">
+				</div>
+				<div class="field">
+					<label for="details">Details</label>
+					<input id="details" name="details" type="text" placeholder="A short note (optional)" maxlength="120">
+				</div>
+				<div class="field">
+					<label for="date">When?</label>
+					<input id="date" name="date" type="date">
+				</div>
+				<div class="field">
+					<label for="priority">Priority</label>
+					<select id="priority" name="priority">
+						<option value="normal">Normal</option>
+						<option value="high">Important</option>
+						<option value="low">Whenever</option>
+					</select>
+				</div>
+				<button class="primary" type="submit">Add to my list</button>
+			</form>
+
+			<section class="panel" aria-labelledby="list-title">
+				<div class="list-heading">
+					<h2 id="list-title">Your list</h2>
+					<span id="count">0 items</span>
+				</div>
+				<p id="empty-state">Your list is clear. Add the first thing that comes to mind.</p>
+				<ul id="items" aria-live="polite"></ul>
+				<button class="secondary" id="clear-all" type="button" hidden>Clear all</button>
+			</section>
+		</section>
+	</main>
+
+	<script>
+		const form = document.querySelector('#item-form');
+		const itemsList = document.querySelector('#items');
+		const emptyState = document.querySelector('#empty-state');
+		const count = document.querySelector('#count');
+		const clearAll = document.querySelector('#clear-all');
+		let items = [];
+
+		function render() {
+			itemsList.innerHTML = items.map((item) => `
+				<li class="item priority-${item.priority}">
+					<div>
+						<h3>${escapeHtml(item.title)}</h3>
+						<p class="meta">${escapeHtml(item.details || 'No details added')}${item.date ? ` &middot; ${formatDate(item.date)}` : ''}</p>
+					</div>
+					<button class="delete" type="button" data-id="${item.id}" aria-label="Delete ${escapeHtml(item.title)}">Delete</button>
+				</li>
+			`).join('');
+			const total = items.length;
+			count.textContent = `${total} ${total === 1 ? 'item' : 'items'}`;
+			emptyState.hidden = total > 0;
+			clearAll.hidden = total === 0;
+		}
+
+		function escapeHtml(value) {
+			return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[character]);
+		}
+
+		function formatDate(value) {
+			return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+		}
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			const data = new FormData(form);
+			items.unshift({
+				id: Date.now(),
+				title: data.get('title').trim(),
+				details: data.get('details').trim(),
+				date: data.get('date'),
+				priority: data.get('priority')
+			});
+			form.reset();
+			document.querySelector('#title').focus();
+			render();
+		});
+
+		itemsList.addEventListener('click', (event) => {
+			const deleteButton = event.target.closest('.delete');
+			if (!deleteButton) return;
+			items = items.filter((item) => item.id !== Number(deleteButton.dataset.id));
+			render();
+		});
+
+		clearAll.addEventListener('click', () => {
+			items = [];
+			render();
+		});
+
+		render();
+	</script>
+</body>
+</html>
